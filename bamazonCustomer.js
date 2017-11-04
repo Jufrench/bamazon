@@ -24,7 +24,6 @@ function progressBar(callback) {
   }, 100);
 }
 
-
 const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -36,19 +35,13 @@ connection.connect(function(err) {
   if (err) throw err
   console.log("connected as id " + connection.threadId);
   showProducts();
-
 });
 
 // ===== Show products in table =========
 function showProducts() {
   connection.query("SELECT * FROM products", (err, res) => {
     if (err) throw err;
-    //console.log(res);
     console.log('\n' + 'WELCOME TO SPICE BAZAAR!'.white);
-    // var table = new Table({
-    // head: ['Spice Bazaar'],
-    // colWidths: [15]
-    // });
 
     var table = new Table({
     head: ['ID #', 'Name', 'Price'],
@@ -56,9 +49,6 @@ function showProducts() {
     });
 
 table.push(
-  // res.forEach((res[i].item_id) => {
-  //   return;
-  // });
 [res[0].item_id, res[0].product_name, '$' + res[0].price],
 [res[1].item_id, res[1].product_name, '$' + res[1].price],
 [res[2].item_id, res[2].product_name, '$' + res[2].price],
@@ -77,17 +67,23 @@ table.push(
 }
 
 // ====== User selects what they want to buy ======
-function chooseItem() {
-  var query = "SELECT * FROM products";
-  connection.query(query, {item_id: itemId}, (err, res) => {
-
+// ================================================
+function chooseItem(input) {
+  var query = "SELECT * FROM products WHERE ?";
+  connection.query(query, {item_id: input}, (err, res) => {
     if (err) throw err;
     inquirer
       .prompt([
         {
           name: 'choice',
           type: 'input',
-          message: 'What would you like to buy? (use "ID #")'.grey
+          message: 'What would you like to buy? (use "ID #")'.grey,
+          validate: function (input) {
+            if (isNaN(input) === false) {
+              return true;
+            }
+              return false;
+          }
         },
         {
           name: 'amount',
@@ -95,74 +91,33 @@ function chooseItem() {
           message: 'How many would you like to buy?'.grey
         }
       ]).then(answer => {
-
+        //console.log(answer.choice);
+        desired = answer.choice;
+        //invalidId(answer.choice);
         checkQuantity(answer.choice, answer.amount);
-          // inquirer
-          //   .prompt([
-          //     {
-          //       name: 'sure',
-          //       type: 'list',
-          //       choices: ['Yes', 'No'],
-          //       message: 'Are you sure?'.grey
-          //     }
-          //   ]).then(answer => {
-          //
-          //       if (answer.sure === 'Yes') {
-          //         checkAmount();
-          //         //purchaseItem();
-          //
-          //       } else {
-          //         console.log("Okay! Let's start over.".red);
-          //         chooseItem();
-          //       }
-          //   });
+
       });
   });
 }
 
-
-function checkAmount() {
-  var query = "SELECT stock_quantity FROM products WHERE ?";
-  connection.query(query, { item_id: itemId }, (err, result) => {
-    var stock = result[0].stock_quantity;
-    if (userAmount < stock) {
-      progressBar();
-      //purchaseItem();
-      console.log(stock);
-    } else {
-      progressBar();
-      console.log("Not enough available!");
-      }
-    });
-}
-
-function purchaseItem(item, quantity) {
-
-  var query = "UPDATE products SET ? WHERE ?";
-  connection.query(query, [
-    {
-      stock_quantity: stock_quantity - parseInt(userAmount)
-    },
-    {
-      id: itemId
-    }
-  ],
-  function (error) {
-    console.log(newAmount);
-  });
-}
-
+// ====== Function to check quantity of selected item ======
+// =========================================================
 function checkQuantity(item, userAmount) {
   var query = "SELECT * FROM products WHERE ?";
   connection.query(query, { item_id: item }, (err, res) => {
+    if (err) throw err;
+    if(!res[0]) {
+      console.log('Not a valid option.' + '\n');
+      notReady();
+      return;
+    }
     if (res[0].stock_quantity > userAmount) {
-
       inquirer
       .prompt([
         {
           name: 'total',
           type: 'list',
-          message: 'Your total is: $' + res[0].price * userAmount + '. ' +  'Are you ready to purchase?'.red,
+          message: 'Your total is: '.red + '$' + res[0].price * userAmount + '. ' +  'Are you ready to purchase?'.red,
           choices: ['Yes', 'No']
         }
       ]).then(answer => {
@@ -170,18 +125,20 @@ function checkQuantity(item, userAmount) {
           progressBar(() => {
             console.log('Purchase complete.' + '\n' + 'Thank you for shopping with us!');
           });
-
           connection.end();
         } else {
           notReady();
         }
       });
-
+    } else {
+      console.log('\n' + 'Only ' + stock + ' of that item available.' + '\n');
+      notReady();
     }
-
   });
 }
 
+// ====== Function if user isn't ready to purchase ============
+// ============================================================
 function notReady() {
   inquirer
   .prompt([
@@ -201,22 +158,19 @@ function notReady() {
   });
 }
 
-// "UPDATE stock_quantity FROM products WHERE ?"
-// {item_id: item, }
+// ====== Function if user selects invalid item ID ============
+// ============================================================
+function invalidId(choice) {
+  var query = "SELECT * FROM products WHERE ?";
+  connection.query(query, {item_id: choice}, (err, res) => {
+    if (err) {
+      console.log('test');
+    }
+    // console.log(choice);
+    // console.log(res[0].item_id);
+    //Need help here
+    // if (choice !== res[0].item_id) {
+    //   console.log('ok');
 
-// function chooseAmount() {
-//   connection.query("SELECT * FROM products", (err, res) => {
-//     if (err) throw err;
-//
-//     inquirer
-//       .prompt([
-//           {
-//             name: 'number',
-//             type: 'input',
-//             message: 'How many do you want to buy?'
-//           }
-//         ]).then((amount) => {
-//           console.log('that much?' + amount);
-//         });
-//   });
-// }
+  });
+}
