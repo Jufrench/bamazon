@@ -10,4 +10,4 @@
 
   ## Purchasing an item
 
-  ![Purchase Item](/gifs/200w_d.gif)
+  ![Purchase Item](/gifs/giphy.gif)
