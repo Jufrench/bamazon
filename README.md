@@ -11,3 +11,11 @@
   ## Purchasing an item
 
   ![Purchase Item](/gifs/giphy.gif)
+
+  ## Choosing a non existent item
+
+  ![Non Existent](/gifs/giphy2.gif)
+
+  ## Chosen amount is more than availability
+
+  ![Too Much](/gifs/giphy3.gif)
