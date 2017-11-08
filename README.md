@@ -11,4 +11,4 @@
   ## Purchasing an item
 
   ![Purchase Item]
-  (https://media.giphy.com/media/3ohjUSkjpqX70el3uU/200w_d.gif)
+  (/gifs/200w_d.gif)
