@@ -7,3 +7,8 @@
   * After inputting the amount, a confirmation message is displayed.
   * mySQL updates the database with the user's choice.
   * A final prompt will display, asking whether the user would like to continue, or end the program.
+
+  ## Purchasing an item
+
+  ![Purchase Item]
+  (https://media.giphy.com/media/3ohjUSkjpqX70el3uU/200w_d.gif)
